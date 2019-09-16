@@ -43,5 +43,28 @@ getAll = async () =>{
     return await User.find()
 }
 
+get = async(id) =>{
+    return await User.findById(id)
+}
 
-module.exports = {authenticate, create, delete:_delete, getAll}
+update = async(id, userParam) =>{
+    const user = await User.findById(id);
+    if(!user ) throw "user not found"
+
+    if (user.email !== userParam.email && await User.findOne({ email: userParam.email})) {
+        throw 'email "' + userParam.email + '" is already taken';
+    }
+
+    if(userParam.password){
+        userParam.password = bcrypt.hashSync(userParam.password, 10)
+    }
+
+    Object.assign(user, userParam)
+
+    return await user.save()
+
+
+}
+
+
+module.exports = {authenticate, create, delete:_delete, getAll, get, update}
